@@ -20,6 +20,8 @@ pub struct Cli {
 
     #[command(subcommand)]
     pub command: Commands,
+    // TODO: Add shell completion generation command for bash/zsh/fish
+    // TODO: Add export/import functionality for environment configurations
 }
 
 #[derive(Subcommand)]

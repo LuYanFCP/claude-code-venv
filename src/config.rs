@@ -63,6 +63,8 @@ impl Config {
         variables: HashMap<String, String>,
         description: Option<String>,
     ) -> Result<()> {
+        // TODO: Add environment variable validation and sanitization
+        // TODO: Create backup before modifying existing environment
         let now = chrono::Utc::now();
 
         let env = Environment {

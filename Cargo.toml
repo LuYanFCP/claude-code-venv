@@ -7,6 +7,10 @@ edition = "2024"
 name = "ccv"
 path = "src/main.rs"
 
+[[bin]]
+name = "ccv-d"
+path = "src/daemon.rs"
+
 [dependencies]
 clap = { version = "4.4", features = ["derive"] }
 toml = "0.8"
@@ -18,3 +22,12 @@ dirs = "5.0"
 serde_json = "1.0"
 uuid = { version = "1.0", features = ["v4"] }
 chrono = { version = "0.4", features = ["serde"] }
+axum = "0.7"
+tokio = { version = "1.0", features = ["full"] }
+tower = "0.4"
+tower-http = { version = "0.5", features = ["cors", "trace"] }
+reqwest = { version = "0.11", features = ["json", "stream"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+headers = "0.3"
+futures = "0.3"

@@ -8,6 +8,9 @@ use std::process::Command;
 use crate::config::Config;
 
 pub fn activate(env_name: Option<String>, config: &Config) -> Result<()> {
+    // TODO: Add dry-run mode to preview environment changes without activation
+    // TODO: Add environment diff/compare functionality for troubleshooting
+    
     let env_name = env_name
         .or_else(|| config.get_current_env_name())
         .ok_or_else(|| anyhow::anyhow!("No environment specified and no global environment set"))?;

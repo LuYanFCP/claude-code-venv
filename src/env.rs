@@ -48,7 +48,13 @@ impl EnvironmentManager {
 
             if !env.variables.is_empty() {
                 for (key, value) in &env.variables {
-                    println!("    {}={}", key.dimmed(), value.dimmed());
+                    // TODO: Implement sensitive value masking for AUTH_TOKEN
+                    let display_value = if key.contains("TOKEN") || key.contains("SECRET") {
+                        format!("{}...", &value[..8.min(value.len())])
+                    } else {
+                        value.clone()
+                    };
+                    println!("    {}={}", key.dimmed(), display_value.dimmed());
                 }
             }
         }
@@ -81,6 +87,7 @@ impl EnvironmentManager {
             "*".blue()
         );
 
+        // TODO: Add URL format validation to ensure proper Anthropic API endpoint
         let anthropic_url: String = Input::new()
             .with_prompt("ANTHROPIC_BASE_URL")
             .default("https://api.anthropic.com".to_string())
