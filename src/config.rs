@@ -25,7 +25,8 @@ impl Config {
         let config_path = config_file.unwrap_or_else(Self::get_default_config_path);
 
         if !config_path.exists() {
-            let config = Self::default();
+            let mut config = Self::default();
+            config.config_path = config_path;
             config.save()?;
             return Ok(config);
         }
