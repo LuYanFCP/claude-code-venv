@@ -26,6 +26,16 @@ pub fn activate(env_name: Option<String>, config: &Config) -> Result<()> {
 
     // Start a new shell with the environment variables set
     let shell = detect_shell();
+    
+    #[cfg(windows)]
+    let shell_cmd = match shell.as_str() {
+        "cmd" => "cmd",
+        "powershell" => "powershell",
+        "pwsh" => "pwsh", // PowerShell Core
+        _ => "powershell",
+    };
+    
+    #[cfg(not(windows))]
     let shell_cmd = match shell.as_str() {
         "bash" => "bash",
         "zsh" => "zsh",
@@ -50,9 +60,32 @@ pub fn activate(env_name: Option<String>, config: &Config) -> Result<()> {
         anyhow::bail!("Failed to start shell: {}", err)
     }
 
-    #[cfg(not(unix))]
+    #[cfg(windows)]
     {
-        // On non-Unix systems, spawn a new shell
+        // On Windows, spawn a new shell with appropriate arguments
+        let mut command = Command::new(shell_cmd);
+        
+        match shell_cmd {
+            "cmd" => {
+                command.arg("/k").arg("echo Environment activated!");
+            }
+            "powershell" | "pwsh" => {
+                command.arg("-NoExit").arg("-Command").arg("Write-Host 'Environment activated!'");
+            }
+            _ => {
+                command.arg("-NoExit");
+            }
+        }
+        
+        let status = command
+            .status()
+            .expect("Failed to execute shell");
+        std::process::exit(status.code().unwrap_or(0));
+    }
+    
+    #[cfg(not(any(unix, windows)))]
+    {
+        // On other non-Unix systems, spawn a new shell
         let status = Command::new(shell_cmd)
             .status()
             .expect("Failed to execute shell");
@@ -61,10 +94,27 @@ pub fn activate(env_name: Option<String>, config: &Config) -> Result<()> {
 }
 
 fn detect_shell() -> String {
-    std::env::var("SHELL")
-        .unwrap_or_else(|_| "unknown".to_string())
-        .split('/')
-        .next_back()
-        .unwrap_or("unknown")
-        .to_string()
+    #[cfg(windows)]
+    {
+        // On Windows, check COMSPEC or use PowerShell as default
+        std::env::var("COMSPEC")
+            .or_else(|_| Ok("powershell".to_string()))
+            .unwrap_or_else(|_| "powershell".to_string())
+            .split('\\')
+            .next_back()
+            .unwrap_or("powershell")
+            .to_string()
+            .to_lowercase()
+    }
+    
+    #[cfg(not(windows))]
+    {
+        // On Unix-like systems, check SHELL environment variable
+        std::env::var("SHELL")
+            .unwrap_or_else(|_| "unknown".to_string())
+            .split('/')
+            .next_back()
+            .unwrap_or("unknown")
+            .to_string()
+    }
 }
