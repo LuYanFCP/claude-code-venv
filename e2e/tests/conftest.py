@@ -45,10 +45,15 @@ def temp_config_file(temp_home_dir: Path) -> Path:
 @pytest.fixture
 def test_binary() -> str:
     """Get path to the built binary."""
+    import sys
+    
+    # Determine binary extension based on platform
+    extension = ".exe" if sys.platform == "win32" else ""
+    
     # Try to find the binary in common locations
     possible_paths = [
-        "target/debug/ccv",
-        "target/release/ccv",
+        f"target/debug/ccv{extension}",
+        f"target/release/ccv{extension}",
     ]
     
     repo_root = Path(__file__).parent.parent.parent
