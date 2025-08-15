@@ -99,7 +99,7 @@ fn detect_shell() -> String {
         // On Windows, check COMSPEC or use PowerShell as default
         std::env::var("COMSPEC")
             .or_else(|_| Ok("powershell".to_string()))
-            .unwrap_or_else(|_| "powershell".to_string())
+            .unwrap_or_else(|_: String| "powershell".to_string())
             .split('\\')
             .next_back()
             .unwrap_or("powershell")
